@@ -11,42 +11,64 @@ class Chrono{
 		this.couleurBordure = b;
 	}
 }
-
+class ChronoBis extends Chrono{
+	constructor(x,y,c,b){
+		super()
+	}
+}
 
 /*Fonctions*/
-
-
-Chrono.prototype.pause = function(id){
-	console.log('Pause !');
+Chrono.prototype.lecture = function(id){
 
 	let divChrono = document.getElementById(id);
 	let afficheur = divChrono.childNodes[0];
 	let btnPauseStart = divChrono.childNodes[1].childNodes[0];
-	let stop = divChrono.childNodes[1].childNodes[1];
+
+	btnPauseStart.classList.add('lecture');
+	btnPauseStart.style.backgroundImage = "url(img/pause.png)";;	
+
+	let tabValue = afficheur.value.split(' - ');
+	let h = tabValue[0];
+	let m = tabValue[1];
+	let s = tabValue[2];
+
+	timer = setInterval(() => {
+		s++;
+		if (s==60) {
+			s = 0;
+			m++;
+
+			if (m==60) {
+				m=0;
+				h++;
+				if (h==24) {h=0;}
+			}
+			if (s<10) {
+				s= "0"+s;
+			}
+		}
+		afficheur.value = h+" - "+m+" - "+s;
+	}, 10);
+}
+
+Chrono.prototype.pause = function(id){
+	let divChrono = document.getElementById(id);
+	let btnPauseStart = divChrono.childNodes[1].childNodes[0];
+
+	clearInterval(timer);
 	btnPauseStart.classList.remove('lecture');	
 	btnPauseStart.style.backgroundImage = "url(img/play-button.png)";	
 }
 
-Chrono.prototype.lecture = function(id){
-	console.log('Lecture !');
 
+Chrono.prototype.init = function(id){
+	if (timer){clearInterval(timer);};
 	let divChrono = document.getElementById(id);
 	let afficheur = divChrono.childNodes[0];
 	let btnPauseStart = divChrono.childNodes[1].childNodes[0];
-	let stop = divChrono.childNodes[1].childNodes[1];
-	console.log(divChrono);
-	console.log(afficheur.value);
-
-	let tabValue = afficheur.value.split('-');
-	console.log(tabValue);
-	btnPauseStart.classList.add('lecture');
-	btnPauseStart.style.backgroundImage = "url(img/pause.png)";;	
-
-	if (afficheur.value == "00 - 00 - 00") {
-		
-	}
-	/*	if(divChrono.classList.contains(''));
-*/
+	btnPauseStart.classList.remove('lecture');	
+	btnPauseStart.style.backgroundImage = "url(img/play-button.png)";	
+	afficheur.value = '00 - 00 - 00';
 }
 
 Chrono.prototype.affiche = function(){
@@ -99,7 +121,7 @@ Chrono.prototype.affiche = function(){
 
 
 	let btnStop = divFlex.appendChild(document.createElement('div'));
-	btnStop.setAttribute('name', 'btnStop');
+	btnStop.addEventListener("click", ()=>{this.init(idC)});
 	btnStop.style.background = "url(img/stop.png) no-repeat";
 	btnStop.style.backgroundSize = "contain";
 	btnStop.style.cursor = "pointer";
