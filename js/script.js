@@ -1,140 +1,199 @@
 /*Var*/
 let compteurChrono = 0;
-
+let body = document.getElementsByTagName('body')[0];
 
 /*Classes*/
 class Chrono{
-	constructor(x,y,c,b){
-		this.abcisses = x;
-		this.ordonnes = y;
-		this.couleurBg = c;
-		this.couleurBordure = b;
+	constructor(abcisses,ordonnes,couleurBg,couleurBordure){
+		this.abcisses = abcisses;
+		this.ordonnes = ordonnes;
+		this.couleurBg = couleurBg;
+		this.couleurBordure = couleurBordure;
+
+		this.divChrono = document.createElement('div');
+		this.afficheur = document.createElement('input');
+		this.divFlex = document.createElement('div');
+		this.btnPauseStart = document.createElement('div');
+		this.btnStop = document.createElement('div');
 	}
 }
+
+
 class ChronoBis extends Chrono{
-	constructor(x,y,c,b){
-		super()
+	constructor(abcisses,ordonnes,couleurBg,couleurBordure){
+		super(abcisses, ordonnes, couleurBg, couleurBordure);
+		this.btnCross = document.createElement('div');
+	}
+	affiche(){
+		super.affiche();
+		this.divChrono.appendChild(this.btnCross);
+		this.btnCross.setAttribute('name', 'btnCross');
+		this.btnCross.style.background = "url(img/delete.png) no-repeat";
+		this.btnCross.style.backgroundSize = "contain";
+		this.btnCross.style.cursor = "pointer";
+		this.btnCross.style.height = "25px";
+		this.btnCross.style.width = "25px";
+		this.btnCross.style.position = "absolute";
+		this.btnCross.style.top = "4px";
+		this.btnCross.style.right = "4px";
+		this.btnCross.addEventListener("click", ()=>{this.divChrono.parentNode.removeChild(this.divChrono);});
 	}
 }
 
-/*Fonctions*/
-Chrono.prototype.lecture = function(id){
+class ChronoTer extends ChronoBis{
+	constructor(abcisses,ordonnes,couleurBg,couleurBordure){
+		super(abcisses, ordonnes, couleurBg, couleurBordure);
+	}
+	affiche(){
+		super.affiche();
+		this.divChrono.style.cursor = "grab";
 
-	let divChrono = document.getElementById(id);
-	let afficheur = divChrono.childNodes[0];
-	let btnPauseStart = divChrono.childNodes[1].childNodes[0];
+		this.divChrono.addEventListener('mousedown', (e)=>{
+			let dx = e.clientX - parseInt(this.divChrono.style.left);
+			let dy = e.clientY - parseInt(this.divChrono.style.top);
 
-	btnPauseStart.classList.add('lecture');
-	btnPauseStart.style.backgroundImage = "url(img/pause.png)";;	
+			this.divChrono.style.cursor = "grabbing";
+			this.divChrono.style.zIndex = compteurChrono;
+			compteurChrono++;
+			let onDrop;
 
-	let tabValue = afficheur.value.split(' - ');
+			document.addEventListener('mousemove', onDrop = (e)=>{
+				this.divChrono.style.left = (e.clientX - dx)+"px";
+				this.divChrono.style.top = (e.clientY - dy)+"px";});
+			document.addEventListener('mouseup', (e)=>{
+				this.divChrono.style.cursor = "grab";
+				document.removeEventListener('mousemove', onDrop);
+			});
+		});
+	}
+}
+
+
+/*Fonctions Classes*/
+Chrono.prototype.lecture = function(){
+
+	this.btnPauseStart.classList.add('lecture');
+	this.btnPauseStart.style.backgroundImage = "url(img/pause.png)";
+
+	let tabValue = this.afficheur.value.split(' - ');
 	let h = tabValue[0];
 	let m = tabValue[1];
 	let s = tabValue[2];
 
-	timer = setInterval(() => {
+	this.timer = setInterval(() => {
 		s++;
 		if (s==60) {
 			s = 0;
 			m++;
-
 			if (m==60) {
 				m=0;
 				h++;
 				if (h==24) {h=0;}
+				if (h<10) {h = "0"+h;}
 			}
-			if (s<10) {
-				s= "0"+s;
-			}
+			if (m<10) {m = "0"+m;}
 		}
-		afficheur.value = h+" - "+m+" - "+s;
-	}, 10);
+		if (s<10) {s = "0"+s;}
+		this.afficheur.value = h+" - "+m+" - "+s;
+	}, 1000);
 }
 
-Chrono.prototype.pause = function(id){
-	let divChrono = document.getElementById(id);
-	let btnPauseStart = divChrono.childNodes[1].childNodes[0];
-
-	clearInterval(timer);
-	btnPauseStart.classList.remove('lecture');	
-	btnPauseStart.style.backgroundImage = "url(img/play-button.png)";	
+Chrono.prototype.pause = function(){
+	clearInterval(this.timer);
+	this.btnPauseStart.classList.remove('lecture');	
+	this.btnPauseStart.style.backgroundImage = "url(img/play-button.png)";	
 }
 
-
-Chrono.prototype.init = function(id){
-	if (timer){clearInterval(timer);};
-	let divChrono = document.getElementById(id);
-	let afficheur = divChrono.childNodes[0];
-	let btnPauseStart = divChrono.childNodes[1].childNodes[0];
-	btnPauseStart.classList.remove('lecture');	
-	btnPauseStart.style.backgroundImage = "url(img/play-button.png)";	
-	afficheur.value = '00 - 00 - 00';
+Chrono.prototype.init = function(){
+	clearInterval(this.timer);
+	this.btnPauseStart.classList.remove('lecture');	
+	this.btnPauseStart.style.backgroundImage = "url(img/play-button.png)";	
+	this.afficheur.value = '00 - 00 - 00';
 }
 
 Chrono.prototype.affiche = function(){
 	compteurChrono++;
-	let newDiv = document.createElement('div');
-	let newInput = document.createElement('input');
-	let idC = "Chrono"+compteurChrono;
+ 
+ 	/*On construit tous les éléments du Chrono*/
+ 	body.appendChild(this.divChrono);
+	this.divChrono.appendChild(this.afficheur);
+	this.divChrono.appendChild(this.divFlex);
+	this.divFlex.appendChild(this.btnPauseStart);
+	this.divFlex.appendChild(this.btnStop);
 
-	let body = document.getElementsByTagName('body')[0];
 
-	let chrono = body.appendChild(newDiv);
 	/*Style css du chrono*/
-	chrono.setAttribute('id', idC);
-	chrono.style.backgroundColor = this.couleurBg;
-	chrono.style.height = "130px";
-	chrono.style.width = "230px";
-	chrono.style.left = this.abcisses;
-	chrono.style.top = this.ordonnes;
-	chrono.style.position = "absolute";
-	chrono.style.position = "absolute";
-	chrono.style.border = "3px solid "+this.couleurBordure;
+	this.divChrono.style.backgroundColor = this.couleurBg;
+	this.divChrono.style.height = "100px";
+	this.divChrono.style.width = "190px";
+	this.divChrono.style.left = this.abcisses;
+	this.divChrono.style.top = this.ordonnes;
+	this.divChrono.style.position = "absolute";
+	this.divChrono.style.border = "3px solid "+this.couleurBordure;
 
 
-	let afficheur = chrono.appendChild(newInput);
-	afficheur.setAttribute('type', 'text');
-	afficheur.setAttribute('name', 'afficheur');
-	afficheur.setAttribute('value', '00 - 00 - 00');
-	afficheur.style.width = "50%";
-	afficheur.style.textAlign = "center";
-	afficheur.style.display = "block";
-	afficheur.style.margin = "2rem auto 0 auto";
-	afficheur.style.border = "0";
+	this.afficheur.setAttribute('type', 'text');
+	this.afficheur.setAttribute('value', '00 - 00 - 00');
+	this.afficheur.style.width = "50%";
+	this.afficheur.style.textAlign = "center";
+	this.afficheur.style.display = "block";
+	this.afficheur.style.margin = "1rem auto 0 auto";
+	this.afficheur.style.border = "0";
 
 
-	let divFlex = chrono.appendChild(document.createElement('div'));
-	divFlex.style.display = "flex";
-	divFlex.style.margin = "25px auto 0 auto";
-	divFlex.style.justifyContent = "space-around";
-	divFlex.style.width = "70%";
+	this.divFlex.style.display = "flex";
+	this.divFlex.style.margin = "25px auto 0 auto";
+	this.divFlex.style.justifyContent = "space-around";
+	this.divFlex.style.width = "70%";
 
 
-	let btnPauseStart = divFlex.appendChild(document.createElement('div'));
-	btnPauseStart.setAttribute('name', 'btnPauseStart');
-	btnPauseStart.addEventListener("click", ()=>{btnPauseStart.classList.contains('lecture')? this.pause(idC): this.lecture(idC)});
-	btnPauseStart.style.background = "url(img/play-button.png) no-repeat";
-	btnPauseStart.style.backgroundSize = "contain";
-	btnPauseStart.style.cursor = "pointer";
-	btnPauseStart.style.height = "30px";
-	btnPauseStart.style.width = "30px";
+	this.btnPauseStart.setAttribute('name', 'btnPauseStart');
+	this.btnPauseStart.addEventListener("click", ()=>{this.btnPauseStart.classList.contains('lecture')? this.pause(): this.lecture()});
+	this.btnPauseStart.style.background = "url(img/play-button.png) no-repeat";
+	this.btnPauseStart.style.backgroundSize = "contain";
+	this.btnPauseStart.style.cursor = "pointer";
+	this.btnPauseStart.style.height = "30px";
+	this.btnPauseStart.style.width = "30px";
 
 
-	let btnStop = divFlex.appendChild(document.createElement('div'));
-	btnStop.addEventListener("click", ()=>{this.init(idC)});
-	btnStop.style.background = "url(img/stop.png) no-repeat";
-	btnStop.style.backgroundSize = "contain";
-	btnStop.style.cursor = "pointer";
-	btnStop.style.height = "30px";
-	btnStop.style.width = "30px";
+	this.btnStop.addEventListener("click", ()=>{this.init()});
+	this.btnStop.style.background = "url(img/stop.png) no-repeat";
+	this.btnStop.style.backgroundSize = "contain";
+	this.btnStop.style.cursor = "pointer";
+	this.btnStop.style.height = "30px";
+	this.btnStop.style.width = "30px";
 }
 
+Node.prototype.drag = function(object){
+	this.addEventListener('mousedown', (e)=>{
+		let dx = e.clientX - parseInt(this.style.left);
+		let dy = e.clientY - parseInt(this.style.top);
 
+		this.style.cursor = "grabbing";
+
+		let onDrop;
+		document.addEventListener('mousemove', onDrop = (e)=>{
+			this.style.left = (e.clientX - dx)+"px";
+			this.style.top = (e.clientY - dy)+"px";});
+		document.addEventListener('mouseup', (e)=>{
+			this.style.zIndex = 0;
+			this.style.cursor = "grab";
+			document.removeEventListener('mousemove', onDrop);
+		});
+	});
+}
 
 /*Code principal*/
 document.addEventListener('DOMContentLoaded', function(){
+	let a5 = new ChronoTer('220px', '10px', 'lightsteelblue', 'darkcyan');
+	a5.affiche();
 	let a1 = new Chrono('120px', '200px', 'orange', 'black');
 	a1.affiche();
 	let a2 = new Chrono('10px', '60px', 'cyan', 'brown');
 	a2.affiche();
+	let a3 = new ChronoBis('450px', '60px', 'purple', 'lightgray');
+	a3.affiche();
+	let a4 = new ChronoTer('380px', '210px', 'lightgray', 'pink');
+	a4.affiche();
+
 });
