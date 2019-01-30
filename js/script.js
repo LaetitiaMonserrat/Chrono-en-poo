@@ -18,7 +18,6 @@ class Chrono{
 	}
 }
 
-
 class ChronoBis extends Chrono{
 	constructor(abcisses,ordonnes,couleurBg,couleurBordure){
 		super(abcisses, ordonnes, couleurBg, couleurBordure);
@@ -36,7 +35,8 @@ class ChronoBis extends Chrono{
 		this.btnCross.style.position = "absolute";
 		this.btnCross.style.top = "4px";
 		this.btnCross.style.right = "4px";
-		this.btnCross.addEventListener("click", ()=>{this.divChrono.parentNode.removeChild(this.divChrono);});
+		this.btnCross.addEventListener("click", ()=>{this.divChrono.parentNode.removeChild(this.divChrono);this.divChrono.del(this);});
+		this.btnCross.onmousedown= (e)=>{e.stopPropagation();};
 	}
 }
 
@@ -67,7 +67,6 @@ class ChronoTer extends ChronoBis{
 		});
 	}
 }
-
 
 /*Fonctions Classes*/
 Chrono.prototype.lecture = function(){
@@ -134,11 +133,13 @@ Chrono.prototype.affiche = function(){
 
 	this.afficheur.setAttribute('type', 'text');
 	this.afficheur.setAttribute('value', '00 - 00 - 00');
+	this.afficheur.setAttribute('readonly', '');
 	this.afficheur.style.width = "50%";
 	this.afficheur.style.textAlign = "center";
 	this.afficheur.style.display = "block";
 	this.afficheur.style.margin = "1rem auto 0 auto";
 	this.afficheur.style.border = "0";
+	this.afficheur.onmousedown= (e)=>{e.stopPropagation();};
 
 
 	this.divFlex.style.display = "flex";
@@ -154,6 +155,7 @@ Chrono.prototype.affiche = function(){
 	this.btnPauseStart.style.cursor = "pointer";
 	this.btnPauseStart.style.height = "30px";
 	this.btnPauseStart.style.width = "30px";
+	this.btnPauseStart.onmousedown= (e)=>{e.stopPropagation();};
 
 
 	this.btnStop.addEventListener("click", ()=>{this.init()});
@@ -162,9 +164,10 @@ Chrono.prototype.affiche = function(){
 	this.btnStop.style.cursor = "pointer";
 	this.btnStop.style.height = "30px";
 	this.btnStop.style.width = "30px";
+	this.btnStop.onmousedown= (e)=>{e.stopPropagation();};
 }
 
-Node.prototype.drag = function(object){
+Node.prototype.drag = function(){
 	this.addEventListener('mousedown', (e)=>{
 		let dx = e.clientX - parseInt(this.style.left);
 		let dy = e.clientY - parseInt(this.style.top);
